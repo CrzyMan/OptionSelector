@@ -1,3 +1,76 @@
 <html>
-    hi
+    <head>
+        <title>Option Selector</title>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/js/CSCP.js"></script>
+    </head>
+    <body>
+        <div id='messages'></div>
+        <script type="text/javascript">
+"use strict";
+
+/*global io*/
+var socket = io();
+
+/*global getCSCP*/
+var cscp = getCSCP();
+
+//*****************************
+//* All of the built-in events*
+//*****************************
+
+// Receives All Options from Server
+socket.on('AllOptions', function(names){
+    console.log("AllOptions:");
+    console.log(names);
+    console.log("");
+});
+
+// Notified that an option has been added
+socket.on('OptionAdded', function(name){
+    console.log("OptionAdded: " + name + "\n");
+});
+
+
+// Is notified that an option has been removed
+socket.on('OptionRemoved', function(name){
+    console.log("OptionRemoved: " + name + "\n");
+});
+
+// Notified that someone has requested a selection
+socket.on('SelectionRequested', function(){
+    console.log("SelectionRequested\n");
+});
+
+// Notified of the server's selection
+socket.on('NewSelection', function(name){
+    console.log("NewSelection: " + name + "\n");
+});
+
+// Given the weights of the options from the server
+socket.on('OptionWeights', function(options){
+    console.log("OptionWeights:");
+    console.log(options);
+    console.log("");
+});
+
+// Received a message from the server
+socket.on('message', function(msg){
+    console.log("Message: " + msg + "\n");
+});
+
+// Received a status message from the server, like a failed join
+socket.on('Status', function(status, msg){
+    let str = "Status: " + status + "\n   msg: " + msg;
+    console.log(str);
+    alert(str);
+});
+
+// Successfully joined a group
+socket.on('JoinSuccess', function(name, groupId){
+    console.log("JoinSuccess: " + name + ", " + groupId);
+});
+
+        </script>
+    </body>
 </html>
