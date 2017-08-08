@@ -1,4 +1,6 @@
+/* ********************** */
 /* Document/Helpful stuff */
+/* ********************** */
 
 body {
     margin: 0;
@@ -30,11 +32,17 @@ input[type="button"]:hover {
     border: solid thin #ccc;
 }
 
+/* ************************** */
 /* End Document/Helpful stuff */
+/* ************************** */
 
 
 
+
+
+/* ******************* */
 /* Modal for bootstrap */
+/* ******************* */
 
 center .modal {
     display: none; /* Hidden by default */
@@ -58,11 +66,17 @@ center .modal {
     to {top:0; opacity:1}
 }
 
+/* ********* */
 /* End Modal */
+/* ********* */
 
 
 
+
+
+/* ********************************** */
 /* Landing Page - What they see first */
+/* ********************************** */
 
 #landing button {
     font-size: 100%;
@@ -73,25 +87,33 @@ center .modal {
     text-align: center;
 }
 
+/* **************** */
 /* End Landing Page */
+/* **************** */
 
 
 
 
 
+/* ******************** */
 /* All of the main page */
+/* ******************** */
 
 .page-title, .sidebar, .main-content {
     padding: 10px;
 }
 
+/* ************************ */
 /* End All of the main page */
+/* ************************ */
 
 
 
 
 
+/* ****************************** */
 /* Page Title - Group name and ID */
+/* ****************************** */
 
 .page-title {
     text-align: center;
@@ -107,13 +129,17 @@ center .modal {
     color: #888;
 }
 
+/* ********* */
 /* End Title */
+/* ********* */
 
 
 
 
 
-/* Sidebar - Requesting and remaining votes */
+/* **************************************** */
+/* Sidebar - Requesting, remaining votes, and etc */
+/* **************************************** */
 
 .sidebar {
     text-align: center;
@@ -124,17 +150,21 @@ center .modal {
     font-size: 2em;
 }
 
+/* *********** */
 /* End Sidebar */
+/* *********** */
 
 
 
 
-
+/* *********************** */
 /* Main Content - The list */
+/* *********************** */
 
 .main-content {
     text-align: left;
 }
+
 
 .optionList {
     padding: 0;
@@ -152,6 +182,8 @@ center .modal {
     border-bottom: none;
 }
 
+
+/* Setting up the grid for each option */
 .option {
     display: grid;
     grid-template-columns: 1fr auto auto auto 1fr ;
@@ -159,14 +191,6 @@ center .modal {
     grid-template-areas:
                 "option-name  option-name   option-name   option-name  option-name"
                 "leftBuff     option-minus  option-value  option-plus  rightBuff";
-}
-
-/* For both buttons */
-input.plus, input.minus{
-    wwidth: 40px;
-    padding-left: 1em;
-    padding-right:1em;
-    text-align: center;
 }
 
 div.option-name {
@@ -179,6 +203,15 @@ span.span_option-name {
     font-size: 3em;
 }
 
+
+/* Setting up the voting buttons */
+/* For both buttons */
+input.plus, input.minus{
+    wwidth: 40px;
+    padding-left: 1em;
+    padding-right:1em;
+    text-align: center;
+}
 
 input.delete, input.delete:hover {
     grid-area: delete;
@@ -210,6 +243,8 @@ input.optionVal {
     border: solid thin #ccc;
 }
 
+
+/* Styling for the disapearing */
 .deleting {
     opacity: 0;
     animation-name: animateDeleting;
@@ -222,15 +257,17 @@ input.optionVal {
     to {opacity: 0; height: 0px; padding: 0px; margin: 0px; display:none;}
 }
 
+/* **************** */
 /* End main content */
+/* **************** */
 
 
 
 
 
-/* ********** */
-/* GRID STUFF */
-/* ********** */
+/* *************** */
+/* SITE GRID STUFF */
+/* *************** */
 
 @supports not (display: grid) {
     .page-title,
@@ -273,3 +310,7 @@ input.optionVal {
         }
     }
 }
+
+/* *************** */
+/* END GRID STUFF */
+/* *************** */

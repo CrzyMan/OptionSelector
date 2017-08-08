@@ -6,9 +6,10 @@ let socket = io();
 let groupName = "";
 let groupID = "";
 
-//*****************************
-//* All of the built-in events*
-//*****************************
+
+////////////////////////////////////////
+// All of the server I/O bottom level //
+////////////////////////////////////////
 
 // Receives All Options from Server
 socket.on('AllOptions', function(names){
@@ -73,13 +74,17 @@ socket.on('JoinSuccess', function(name, groupId){
     document.getElementById("div_title-id").innerHTML = "Group ID: " + groupId;
 });
 
+////////////////////////////
+// End Server I/O low end //
+////////////////////////////
 
 
 
 
-/////////////////////////////////////////////
-// Make it easy to send messages to server //
-/////////////////////////////////////////////
+
+//////////////////////////
+// Server I/O top level //
+//////////////////////////
 
 /** Create the group if it can
  * PARAMS:
@@ -183,6 +188,12 @@ function validateGroupId(groupId){
     
     return valid;
 }
+
+//////////////////////////////
+// End server I/O top level //
+//////////////////////////////
+
+
 
 
 
