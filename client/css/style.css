@@ -1,0 +1,275 @@
+/* Document/Helpful stuff */
+
+body {
+    margin: 0;
+}
+
+.hidden {
+    display: none;
+}
+
+.center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Looks like bootstrap */
+input[type="button"] {
+    padding: 10px 12px;
+    font-size: 2em;
+    border-radius: 6px;
+    background-color: white;
+    border: solid thin #ccc;
+}
+/* Looks like bootstrap */
+input[type="button"]:hover {
+    font-size: 2em;
+    background-color: #e6e6e6;
+    border: solid thin #ccc;
+}
+
+/* End Document/Helpful stuff */
+
+
+
+/* Modal for bootstrap */
+
+center .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+/* End Modal */
+
+
+
+/* Landing Page - What they see first */
+
+#landing button {
+    font-size: 100%;
+    width: 100%;
+}
+
+#landing {
+    text-align: center;
+}
+
+/* End Landing Page */
+
+
+
+
+
+/* All of the main page */
+
+.page-title, .sidebar, .main-content {
+    padding: 10px;
+}
+
+/* End All of the main page */
+
+
+
+
+
+/* Page Title - Group name and ID */
+
+.page-title {
+    text-align: center;
+    border-bottom: solid;
+}
+
+.title-name {
+    font-size: 4.5em;
+}
+
+.title-id {
+    font-size: 2em;
+    color: #888;
+}
+
+/* End Title */
+
+
+
+
+
+/* Sidebar - Requesting and remaining votes */
+
+.sidebar {
+    text-align: center;
+    border-bottom: solid;
+}
+
+.sidebar div {
+    font-size: 2em;
+}
+
+/* End Sidebar */
+
+
+
+
+
+/* Main Content - The list */
+
+.main-content {
+    text-align: left;
+}
+
+.optionList {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.optionList li {
+    margin: .5em 0;
+    padding: 0 0 2em 0;
+    border-bottom: dotted;
+}
+
+.optionList li:last-child {
+    border-bottom: none;
+}
+
+.option {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto 1fr ;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas:
+                "option-name  option-name   option-name   option-name  option-name"
+                "leftBuff     option-minus  option-value  option-plus  rightBuff";
+}
+
+/* For both buttons */
+input.plus, input.minus{
+    wwidth: 40px;
+    padding-left: 1em;
+    padding-right:1em;
+    text-align: center;
+}
+
+div.option-name {
+    grid-area: option-name;
+    position: relative;
+    text-align: center;
+}
+
+span.span_option-name {
+    font-size: 3em;
+}
+
+
+input.delete, input.delete:hover {
+    grid-area: delete;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 2em;
+    background-color: #ff9191;
+}
+
+input.minus {
+    grid-area: option-minus;
+    margin-right: -1px;
+    border-radius: 6px 0px 0px 6px;
+}
+
+input.plus {
+    grid-area: option-plus;
+    margin-left: -1px;
+    border-radius: 0px 6px 6px 0px;
+}
+
+input.optionVal {
+    grid-area: option-value;
+    text-align: center;
+    font-size: 2em;
+    background-color: white;
+    color: #555;
+    border: solid thin #ccc;
+}
+
+.deleting {
+    opacity: 0;
+    animation-name: animateDeleting;
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+@keyframes animateDeleting {
+    from {opacity: 1; height: 150px;}
+    to {opacity: 0; height: 0px; padding: 0px; margin: 0px; display:none;}
+}
+
+/* End main content */
+
+
+
+
+
+/* ********** */
+/* GRID STUFF */
+/* ********** */
+
+@supports not (display: grid) {
+    .page-title,
+    .main-content,
+    .sidebar {
+        max-width: 50em;
+        margin: 0 auto;
+	}
+}
+
+@supports (display: grid) {
+    .indicator {
+        display: none;
+    }
+    
+    @media screen and (min-width: 800px) {
+      	.site {
+            display: grid;
+            grid-template-columns: 1fr 5fr;
+            grid-template-rows: auto 1fr;
+            grid-template-areas:
+                "content-head content-head"
+                "sidebar main";
+            min-height: 100vh;
+        }
+        
+        .page-title {
+          grid-area: content-head;
+        }
+        
+        .main-content {
+          grid-area: main;
+        }
+        
+        .sidebar {
+          grid-area: sidebar;
+          text-align: left;
+          border-bottom: none;
+          border-right: solid;
+        }
+    }
+}

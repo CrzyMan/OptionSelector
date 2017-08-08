@@ -147,6 +147,8 @@ function removeGroup(name){
     return false;
 }
 
+/** Determines whether or not a group exists
+ */
 function groupExists(id){
     return groups.hasOwnProperty(id);
 }
@@ -171,7 +173,7 @@ function socketJoinGroup(groupId, socket){
   } else {
     console.log("unsocksessful");
     // Let the socket know it failed
-    io.to(socket.id).emit("Status", "Failed to join group", "Try again, buddy. You'll make friends some day.");
+    io.to(socket.id).emit("Status", "Failed to join group", "Group Does not exist.");
   }
 }
 

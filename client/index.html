@@ -1,76 +1,120 @@
 <html>
+    <!--
+        LOOK INTO BOOTSTRAP!
+    -->
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=0">
         <title>Option Selector</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-        <script src="/js/CSCP.js"></script>
+        <script src="/js/app.js"></script>
     </head>
     <body>
-        <div id='messages'></div>
-        <script type="text/javascript">
-"use strict";
-
-/*global io*/
-var socket = io();
-
-/*global getCSCP*/
-var cscp = getCSCP();
-
-//*****************************
-//* All of the built-in events*
-//*****************************
-
-// Receives All Options from Server
-socket.on('AllOptions', function(names){
-    console.log("AllOptions:");
-    console.log(names);
-    console.log("");
-});
-
-// Notified that an option has been added
-socket.on('OptionAdded', function(name){
-    console.log("OptionAdded: " + name + "\n");
-});
-
-
-// Is notified that an option has been removed
-socket.on('OptionRemoved', function(name){
-    console.log("OptionRemoved: " + name + "\n");
-});
-
-// Notified that someone has requested a selection
-socket.on('SelectionRequested', function(){
-    console.log("SelectionRequested\n");
-});
-
-// Notified of the server's selection
-socket.on('NewSelection', function(name){
-    console.log("NewSelection: " + name + "\n");
-});
-
-// Given the weights of the options from the server
-socket.on('OptionWeights', function(options){
-    console.log("OptionWeights:");
-    console.log(options);
-    console.log("");
-});
-
-// Received a message from the server
-socket.on('message', function(msg){
-    console.log("Message: " + msg + "\n");
-});
-
-// Received a status message from the server, like a failed join
-socket.on('Status', function(status, msg){
-    let str = "Status: " + status + "\n   msg: " + msg;
-    console.log(str);
-    alert(str);
-});
-
-// Successfully joined a group
-socket.on('JoinSuccess', function(name, groupId){
-    console.log("JoinSuccess: " + name + ", " + groupId);
-});
-
-        </script>
+        <div id="landing" class="center">
+            <input type="button" data-toggle="modal" data-target="#createDialog" value="Create Group"/><br/><br/>
+            <input type="button"  data-toggle="modal" data-target="#joinDialog" value="Join Group"/>
+        </div>
+        
+        <!-- These are called modal boxes, bootstrap uses them, well, once you format them correctly -->
+        
+        <div class="modal fade" id="createDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="createGroupForm">
+                        <div class="modal-header">
+                            <h1>Create Group</h1>
+                        </div>
+                        <div class="modal-body">
+                                <input type="text" class="form-control" id="createGroupInput" placeholder="Group Name">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="createGroupBtn">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        
+       <div class="modal fade" id="joinDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="joinGroupForm">
+                        <div class="modal-header">
+                            <h1>Join Group</h1>
+                        </div>
+                        <div class="modal-body">
+                                <input type="text" class="form-control" id="joinGroupInput" placeholder="Group ID" autocapitalize="none"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="joinGroupBtn">Join</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div id="selection" class="modal">
+            
+        </div>
+        <div id="wait" class="modal">
+            
+        </div>
+        <div id="requestCanceled" class="modal">
+            
+        </div>
+        <div id="site" class="site hidden">
+            <div class="indicator">
+                <h1>DOESN'T WORK/h1>
+            </div>
+            
+            <header class="page-title">
+                <div id="div_title-name" class="title-name">Group Name</div>
+                <div id="div_title-id" class="title-id">Group id</div>
+            </header>
+            
+            <aside class="sidebar">
+                <input id="btn_requestSelection" type="button" value="Request Selection"/><br/><br/>
+                <input id="btn_clearVotes" type="button" value="Clear My Votes"/><br/><br/>
+                <input id="btn_lockVotes" type="button" value="Lock My Votes"/><br/><br/>
+                <input id="btn_shareGroup" type="button" value="Share Group"/><br/><br/>
+                <div>Votes left: <span id="span_remaining-votes">0</span></div>
+            </aside>
+            
+            <main class="main-content">
+                <ul class="optionList" id="ul_optionList">
+                </ul>
+            </main>
+            <ul class="hidden">
+                <li id="mockOption" class="option">
+                    <div class="option-name">
+                        <span class="span_option-name"></span>
+                        <input type="button" class="delete" value="X" onclick="deleteOptionOnClick(this)"/>
+                    </div>
+                    <input type="button" class="minus" value="-" onclick="plusMinusOnClick(this, -1)"/>
+                    <input type="text" class="optionVal" value="0" size=1 maxlength=3 disabled/>
+                    <input type="button" class="plus" value="+" onclick="plusMinusOnClick(this, 1)"/>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                Terrible
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#exampleModal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
     </body>
 </html>
