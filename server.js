@@ -93,10 +93,10 @@ io.on('connection', function (socket) {
       if (isGroupMember(groupId, socket)){
       
         // if option exists
-        if (groups[groupId].options.hasOwnProperty(name)){
+        if (doesOptionExistForGroup(groupId, name)){
           
           // delete it
-          delete groups[groupId].options[name];
+          removeOptionFromGroup(groupId, name);
           
           // tell everyone to get rid of it
           io.to(groupId).emit("OptionRemoved", name);
@@ -280,6 +280,11 @@ function doesOptionExistForGroup(groupId, optionName){
 function addOptionToGroup(groupId, optionName){
   optionName = optionName.trim().toLowerCase();
   groups[groupId].options[optionName] = 0;
+}
+
+function removeOptionFromGroup(groupId, optionName){
+  optionName = optionName.trim().toLowerCase();
+  delete groups[groupId].options[optionName];
 }
 
 // Actually have the server running
