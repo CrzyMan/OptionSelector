@@ -4,7 +4,7 @@
 // Requires /socket.io/socket.io.js
 let socket = io();
 let groupName = "";
-let groupID = "";
+let GROUPID = "";
 
 
 ////////////////////////////////////////
@@ -13,20 +13,21 @@ let groupID = "";
 
 // Receives All Options from Server
 socket.on('AllOptions', function(names){
-    console.log("AllOptions:");
-    console.log(names);
-    console.log("");
+    for (let i = 0; i < names.length; i++){
+        addNewOption(names[i]);
+    }
 });
 
 // Notified that an option has been added
 socket.on('OptionAdded', function(name){
-    console.log("OptionAdded: " + name + "\n");
+    addNewOption(name);
 });
 
 
 // Is notified that an option has been removed
 socket.on('OptionRemoved', function(name){
     console.log("OptionRemoved: " + name + "\n");
+    removeOptionByName(name);
 });
 
 // Notified that someone has requested a selection
@@ -62,7 +63,7 @@ socket.on('Status', function(status, msg){
 // Successfully joined a group
 socket.on('JoinSuccess', function(name, groupId){
     groupName = name;
-    groupID = groupId;
+    GROUPID = groupId;
     
     console.log("JoinSuccess: " + name + ", " + groupId);
     // Hide the landing
@@ -189,6 +190,35 @@ function validateGroupId(groupId){
     return valid;
 }
 
+function submitNewOption(name){
+    if (validateOptionName(name)){
+        socket.emit("AddOption",GROUPID, name);
+    } else {
+        alert("\"" + name + "\" is not a valid option name. Please make sure there are no leading or trailing spaces.")
+    }
+}
+
+function submitOptionRemoval(name){
+    if (validateOptionName(name)){
+        socket.emit("RemoveOption", GROUPID, name);
+    } else {
+        alert("\"" + name + "\" is not a valid option name. Please make sure there are no leading or trailing spaces.")
+    }
+}
+
+function validateOptionName(name){
+    let result = false;
+    
+    // Validate name
+    if (name !== undefined){
+        if (name === name.trim()){
+            result = true;
+        } // extra spaces
+    } // undefined
+    
+    return result;
+}
+
 //////////////////////////////
 // End server I/O top level //
 //////////////////////////////
@@ -245,18 +275,14 @@ $( document ).ready(function() {
     
     $("#btn_shareGroup").on("click", giveLink);
     
-    addNewOption("Italian");
-    addNewOption("Pizza");
-    addNewOption("Tex-Mex");
-    addNewOption("Left Overs");
-    addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");addNewOption("Left Overs");
+    $("#btn_addOption").on("click", addOptionOnClick)
 });
 
 // Pops up a message
 window.onbeforeunload = function(){return true};
 
 function giveLink(){
-    alert(window.location.origin + "/?id=" + groupID);
+    alert(window.location.origin + "/?id=" + GROUPID);
 }
 
 /** Adds a new option
@@ -267,15 +293,17 @@ function giveLink(){
  */
 function addNewOption(name){
     // make an ID for this option
-    let id = name.toLowerCase();
+    let id = optionIdFromName(name);
     
     // if it doesn't already exist
-    if (document.querySelector("#option_" + id) !== undefined){
+    if (document.querySelector("#" + id) !== undefined){
         let ul = document.getElementById("ul_optionList");
         let mo = document.getElementById("mockOption");
         let cln = mo.cloneNode(true);
         
-        cln.id = "option_" + name;
+        cln.id = id;
+        
+        cln.dataset.name = name;
         
         cln.querySelector(".span_option-name").innerHTML = name;
         
@@ -289,10 +317,37 @@ function addNewOption(name){
     } else {
         // option already exists
     }
-    
  }
-
-checkURLForGroup();
+ 
+ /** Makes the id for the option list item based on its name
+  */
+ function optionIdFromName(name){
+     return "option_" + name.toLowerCase();
+ }
+ 
+ /** Searches for an option by its name and then removes it
+  * PARAMS:
+  *         name : String - The name of the option
+  */
+ function removeOptionByName(name){
+     let id = optionIdFromName(name);
+     
+     let li = document.getElementById(id);
+     
+     // if it exists
+     if (li !== undefined){
+         
+         // Make it disapear
+         li.classList.add("deleting");
+         
+         // Actually get rid of it
+         setTimeout(function(){
+             li.parentNode.removeChild(li);
+         }, 500);
+         
+         // Adjust the remaining vote count
+     }
+ }
 
 let remainingVotes = 0;
 let maxVotes = 0;
@@ -317,17 +372,42 @@ function plusMinusOnClick(btn, dv){
     
 }
 
+
+
+////////////////////////////////////////
+// Start OnClick function for buttons //
+////////////////////////////////////////
+
 /** The onClick for deleting an option
  * PARAMS:
  *      btn - Input Element : The button that was clicked
  */
- function deleteOptionOnClick(btn){
-     let li = btn.parentNode.parentNode;
-     li.classList.add("deleting");
-     
-     // remaining votes += how ever many votes were on this option
-     
-     setTimeout(function(){
-         li.parentNode.removeChild(li);
-     }, 500);
- }
+function deleteOptionOnClick(btn){
+    // This is dependent upon the structure of the DOM tree not changing
+    // TODO: Come up with a less volitile way to find the li element
+    
+    let name = btn.parentNode.parentNode.dataset.name;
+    
+    // The submit function will do all of the validating
+    submitOptionRemoval(name);
+}
+
+function addOptionOnClick(){
+    let name = window.prompt("Please enter the name of your new option");
+    
+    // the submit function will do all of the validating
+    submitNewOption(name);
+}
+
+///////////////////////////
+// End OnClick functions //
+///////////////////////////
+
+
+
+
+///////////////////////////////
+// Last bit before we finish //
+///////////////////////////////
+
+checkURLForGroup();
