@@ -187,7 +187,7 @@ center .modal {
 .option {
     display: grid;
     grid-template-columns: 1fr auto auto auto 1fr ;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: 1fr auto;
     grid-template-areas:
                 "option-name  option-name   option-name   option-name  option-name"
                 "leftBuff     option-minus  option-value  option-plus  rightBuff";

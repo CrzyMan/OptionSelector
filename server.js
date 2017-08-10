@@ -277,6 +277,7 @@ function doesOptionExistForGroup(groupId, optionName){
   return groups[groupId].options.hasOwnProperty(optionName);
 }
 
+// TODO: Option needs to be referenced by id, contains a name, and a weighting
 function addOptionToGroup(groupId, optionName){
   optionName = optionName.trim().toLowerCase();
   groups[groupId].options[optionName] = 0;
