@@ -15,7 +15,15 @@ const io = socketio.listen(server);
 
 router.use(express.static(path.resolve(__dirname, 'client')));
 
+
+// My "database" I guess
 var groups = {};
+
+
+
+//////////////////////
+// START SOCKET I/O //
+//////////////////////
 
 io.on('connection', function (socket) {
   console.log("Socket Connected: " + socket.id + "\n");
@@ -159,6 +167,19 @@ io.on('connection', function (socket) {
   
 });
 
+////////////////////
+// END SOCKET I/O //
+////////////////////
+
+
+
+
+
+
+//////////////////
+// START GROUPS //
+//////////////////
+
 /** Returns a new object
  * PARAMS:
  *      name: String - The name of the new group
@@ -249,7 +270,7 @@ function socketJoinGroup(groupId, socket){
       socket.emit("JoinSuccess", groups[groupId].name, groupId);
       
       // Give the socket all of the options for this group
-      let allOptions = Object.keys(groups[groupId].options);
+      let allOptions = getGroupOptions(groupId);
       // If there are any options
       if (allOptions.length > 0){
         socket.emit("AllOptions", allOptions);
@@ -264,6 +285,58 @@ function socketJoinGroup(groupId, socket){
   }
 }
 
+/** Returns all of the options that a group has
+ * PARAMS:
+ *    groupId : String - The ID of the group we want the options for
+ * RETURNS:
+ *    Array<String> - All of the options in the group. Empty if no options
+ */
+function getGroupOptions(groupId){
+  let result = [];
+  let keys = Object.keys(groups[groupId].options);
+  let key = "";
+  for (let i = 0; i < keys.length; i++){
+    key = keys[i];
+    result.push(groups[groupId].options[key].name);
+  }
+  return result;
+}
+
+////////////////
+// END GROUPS //
+////////////////
+
+
+
+
+
+
+
+///////////////////
+// START OPTIONS //
+///////////////////
+
+/** Produces a new option object from a given name
+ * PARAMS:
+ *    optionName : String - The name that the option needs to have
+ * RETURNS:
+ *    Object - The option object
+ */
+function newOption(optionName){
+  let result = {};
+  result.name = optionName;
+  result.weight = 0;
+}
+
+/** Produces a key based on the name of the option
+ * PARAMS:
+ *    name : String - The name of the option we are generating a key for
+ * RETURNS:
+ *    String - The key for the name
+ */
+function optionKeyFromName(optionName){
+  return optionName.trim().toLowerCase();
+}
 
 /** Determines whether or not a group has an option
  * PARAMS:
@@ -273,22 +346,34 @@ function socketJoinGroup(groupId, socket){
  *    boolean - Whether or not a group has the given option
  */
 function doesOptionExistForGroup(groupId, optionName){
-  optionName = optionName.trim().toLowerCase();
-  return groups[groupId].options.hasOwnProperty(optionName);
+  let key = optionKeyFromName(optionName);
+  return groups[groupId].options.hasOwnProperty(key);
 }
 
 // TODO: Option needs to be referenced by id, contains a name, and a weighting
 function addOptionToGroup(groupId, optionName){
-  optionName = optionName.trim().toLowerCase();
-  groups[groupId].options[optionName] = 0;
+  let key = optionKeyFromName(optionName);
+  groups[groupId].options[key] = newOption(optionName);
 }
 
 function removeOptionFromGroup(groupId, optionName){
-  optionName = optionName.trim().toLowerCase();
-  delete groups[groupId].options[optionName];
+  let key = optionKeyFromName(optionName);
+  delete groups[groupId].options[key];
 }
 
-// Actually have the server running
+/////////////////
+// END OPTIONS //
+/////////////////
+
+
+
+
+
+
+//////////////////////////////////////
+// Actually have the server running //
+//////////////////////////////////////
+
 server.listen(process.env.PORT, process.env.IP, function(){
   var addr = server.address();
   console.log("Server listening at", addr.address + ":" + addr.port);
