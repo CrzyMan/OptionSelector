@@ -295,6 +295,7 @@ function getGroupOptions(groupId){
   let result = [];
   let keys = Object.keys(groups[groupId].options);
   let key = "";
+  console.log(">>> " + JSON.stringify(groups[groupId]));
   for (let i = 0; i < keys.length; i++){
     key = keys[i];
     result.push(groups[groupId].options[key].name);
@@ -326,6 +327,7 @@ function newOption(optionName){
   let result = {};
   result.name = optionName;
   result.weight = 0;
+  return result;
 }
 
 /** Produces a key based on the name of the option
@@ -354,6 +356,9 @@ function doesOptionExistForGroup(groupId, optionName){
 function addOptionToGroup(groupId, optionName){
   let key = optionKeyFromName(optionName);
   groups[groupId].options[key] = newOption(optionName);
+  console.log("adding option: " + optionName);
+  console.log("adding key: " + key);
+  console.log(">>> " + JSON.stringify(groups[groupId]));
 }
 
 function removeOptionFromGroup(groupId, optionName){
