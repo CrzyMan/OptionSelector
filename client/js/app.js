@@ -1,10 +1,86 @@
 "use strict";
 
+class OptionsHandler{
+    constructor(remVotesEl){
+        this.remainingVotes = 0;
+        console.log("element: ", remVotesEl);
+        this.remainingVotesElem = remVotesEl; 
+        this.votes = {};
+        this.elements = {};
+    }
+    
+    addOption(id, el){
+        this.votes[id] = 0;
+        this.elements[id] = el;
+        this.remainingVotes++;
+    }
+    
+    removeOptionById(id){
+        if (this.votes.hasOwnProperty(id)){
+            this.remainingVotes += Math.abs(this.votes[id]) - 1;
+            delete this.votes[id];
+            delete this.elements[id];
+            
+            this.refreshOption(id);
+            return true;
+        }
+        return false;
+    }
+    
+    refreshOption(id){
+        let res = false;
+        // If the option exists
+        if (this.votes.hasOwnProperty(id)){
+            let el = this.elements[id].querySelector(".optionVal");
+            
+            // if the element is there
+            if (el !== null){
+                el.value = this.votes[id];
+                res = true;
+            }
+        }
+        return res;
+    }
+    
+    refreshRemainingVotes(){
+        this.remainingVotesElem.innerHTML = this.remainingVotes;
+    }
+    
+    voteOnId(id, val){
+        let res = false;
+        
+        // if option exists
+        if (this.votes.hasOwnProperty(id)){
+            const voteGain = Math.abs(this.votes[id]) - Math.abs(this.votes[id] + val);
+            
+            // if this vote can be cast
+            if (this.remainingVotes + voteGain >= 0){
+                
+                this.votes[id] += val;
+                this.remainingVotes += voteGain;
+                
+                // refresh the remaining votes
+                this.refreshRemainingVotes();
+                
+                // refresh the element (failure returns false)
+                res = this.refreshOption(id);
+            }
+        }
+        return res;
+    }
+}
+let oh;
+window.onload = () => {
+    const el = document.getElementById("span_remaining-votes");
+    oh = new OptionsHandler(el);
+};
+
 /*global io*/
 // Requires /socket.io/socket.io.js
 let socket = io();
 let groupName = "";
 let GROUPID = "";
+
 
 
 ////////////////////////////////////////
@@ -275,7 +351,7 @@ $( document ).ready(function() {
     
     $("#btn_shareGroup").on("click", giveLink);
     
-    $("#btn_addOption").on("click", addOptionOnClick)
+    $("#btn_addOption").on("click", addOptionOnClick);
 });
 
 // Pops up a message
@@ -285,7 +361,7 @@ function giveLink(){
     alert(window.location.origin + "/?id=" + GROUPID);
 }
 
-/** Adds a new option
+/** Adds a new option once it is received from server
  * PARAMS:
  *      name: String - The name of the option
  * RETURNS:
@@ -309,11 +385,9 @@ function addNewOption(name){
         
         ul.appendChild(cln);
         
-        remainingVotes++;
-        maxVotes++;
+        oh.addOption(id, cln);
         
-        let span_remaining_votes = document.getElementById("span_remaining-votes");
-        span_remaining_votes.innerHTML = remainingVotes;
+        oh.refreshRemainingVotes();
     } else {
         // option already exists
     }
@@ -329,28 +403,28 @@ function addNewOption(name){
   * PARAMS:
   *         name : String - The name of the option
   */
- function removeOptionByName(name){
-     let id = optionIdFromName(name);
+function removeOptionByName(name){
+    let id = optionIdFromName(name);
+    
+    let li = document.getElementById(id);
+    
+    // if it exists
+    if (li !== undefined){
      
-     let li = document.getElementById(id);
-     
-     // if it exists
-     if (li !== undefined){
-         
-         // Make it disapear
-         li.classList.add("deleting");
-         
-         // Actually get rid of it
-         setTimeout(function(){
-             li.parentNode.removeChild(li);
-         }, 500);
-         
-         // Adjust the remaining vote count
-     }
- }
-
-let remainingVotes = 0;
-let maxVotes = 0;
+        oh.removeOptionById(id);
+        
+        // Make it disapear
+        li.classList.add("deleting");
+        
+        // Actually get rid of it
+        setTimeout(function(){
+            li.parentNode.removeChild(li);
+        }, 500);
+        
+        // Adjust the remaining vote count
+        oh.refreshRemainingVotes();
+    }
+}
 
 /** The onClick for plus and minus buttons
  * PARAMS:
@@ -358,17 +432,9 @@ let maxVotes = 0;
  *      dv - Integer : The amount by which we want to change the value
  */
 function plusMinusOnClick(btn, dv){
-    let li = btn.parentNode;
-    let val = li.querySelector(".optionval");
-    let newVal = parseInt(val.value, 10) + dv;
-    let newVotes = remainingVotes - Math.abs(newVal) + Math.abs(val.value);
+    let id = btn.parentNode.id;
     
-    if (newVotes >= 0 && newVotes <= maxVotes){
-        let span_remaining_votes = document.getElementById("span_remaining-votes");
-        val.value = newVal;
-        span_remaining_votes.innerHTML = newVotes;
-        remainingVotes = newVotes;
-    }
+    oh.voteOnId(id, dv);
     
 }
 

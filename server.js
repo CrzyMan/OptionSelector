@@ -5,7 +5,6 @@ const path = require('path');
 const fs   = require('fs');
 //var sscp = require('sscp');
 
-//const async = require('async');
 const socketio = require('socket.io');
 const express = require('express');
 
@@ -295,7 +294,6 @@ function getGroupOptions(groupId){
   let result = [];
   let keys = Object.keys(groups[groupId].options);
   let key = "";
-  console.log(">>> " + JSON.stringify(groups[groupId]));
   for (let i = 0; i < keys.length; i++){
     key = keys[i];
     result.push(groups[groupId].options[key].name);
@@ -356,9 +354,6 @@ function doesOptionExistForGroup(groupId, optionName){
 function addOptionToGroup(groupId, optionName){
   let key = optionKeyFromName(optionName);
   groups[groupId].options[key] = newOption(optionName);
-  console.log("adding option: " + optionName);
-  console.log("adding key: " + key);
-  console.log(">>> " + JSON.stringify(groups[groupId]));
 }
 
 function removeOptionFromGroup(groupId, optionName){
