@@ -140,6 +140,7 @@ socket.on('Status', function(status, msg){
 socket.on('JoinSuccess', function(name, groupId){
     groupName = name;
     GROUPID = groupId;
+    alterGroupInURLNoReload(groupId);
     
     console.log("JoinSuccess: " + name + ", " + groupId);
     // Hide the landing
@@ -212,6 +213,23 @@ function joinGroup(groupId){
         socket.emit("JoinGroup", groupId);
     } else {
         alert("Invalid Group Id");
+    }
+}
+
+/** Appends a group id to the url without redirecting
+ * PARAMS:
+ *      groupId: String - The ID of the group the socket is trying to join
+ */
+/* global history*/
+function alterGroupInURLNoReload(groupId){
+    if (history){
+        // if group id provided
+        if (groupId != undefined){
+            history.pushState({}, null, window.location.pathname + "?id=" + groupId);
+        } else {
+            // if group id not provided, remove the group thing
+            history.pushState({}, null, window.location.pathname);
+        }
     }
 }
 
