@@ -3,30 +3,64 @@
 class OptionsHandler{
     constructor(remVotesEl){
         this.remainingVotes = 0;
-        console.log("element: ", remVotesEl);
         this.remainingVotesElem = remVotesEl; 
         this.votes = {};
         this.elements = {};
     }
     
+    // Adds the option and links it to the voting and element datastructures
     addOption(id, el){
         this.votes[id] = 0;
         this.elements[id] = el;
         this.remainingVotes++;
     }
     
+    // Cleans all datastructers of the option, rebalances votes, and then refreshed the displays
     removeOptionById(id){
         if (this.votes.hasOwnProperty(id)){
+            // Regain votes from option, and reduce due to lost option
             this.remainingVotes += Math.abs(this.votes[id]) - 1;
+            
+            // Actually remove from datastructures
             delete this.votes[id];
             delete this.elements[id];
             
-            this.refreshOption(id);
+            // Handle negative remaining votes
+            if (this.remainingVotes < 0){
+                // take vote from option of least number of assigned votes
+                const newId = this.getOptionIdWithLowVotes();
+                // If the element exists
+                if (newId){
+                    // find the appropriate vote direction, +1 if negative, -1 if positive
+                    const val = -this.votes[newId] / Math.abs(this.votes[newId]);
+                    this.voteOnId(newId, val)
+                }
+            }
+            
+            // Refresh the remaining votes display
+            this.refreshRemainingVotes();
             return true;
         }
         return false;
     }
     
+    // Returns the id of the option with the lowest positive number of votes
+    getOptionIdWithLowVotes(){
+        let result;
+        const list = Object.keys(this.votes)                      // Get the ids
+                     .map(id => [id, Math.abs(this.votes[id])])   // Make them into objects containing id and # of votes
+                     .sort((a, b) => a[1] - b[1])               // Sort by # of votes, ascending
+                     .filter( e => e[1] > 0);                    // Only allow elements that have at least one vote
+        
+        // If there are any valid elements
+        if (list.length > 0){
+            // set the result to be the id of the first element
+            result = list[0][0];
+        }
+        return result;
+    }
+    
+    // Refreshes the display for an option with the given id
     refreshOption(id){
         let res = false;
         // If the option exists
@@ -42,10 +76,16 @@ class OptionsHandler{
         return res;
     }
     
+    // Refreshes the display for the remaining number of votes
     refreshRemainingVotes(){
         this.remainingVotesElem.innerHTML = this.remainingVotes;
     }
     
+    /** Applies a increment or decrement to an option, and then updates the displays
+     *  PARAMS:
+     *      id  : String - the id of the option we are voting on
+     *      val : Number - value to be added to option, either 1 or -1
+     */
     voteOnId(id, val){
         let res = false;
         
@@ -69,6 +109,7 @@ class OptionsHandler{
         return res;
     }
 }
+
 let oh;
 window.onload = () => {
     const el = document.getElementById("span_remaining-votes");
@@ -233,6 +274,8 @@ function alterGroupInURLNoReload(groupId){
     }
 }
 
+/** Called once the page has loaded this js file. Tries to join whatever group is in the URL
+ */ 
 function checkURLForGroup(){
     var str = window.location.search;
     var idStart = str.lastIndexOf("id=");
@@ -372,9 +415,10 @@ $( document ).ready(function() {
     $("#btn_addOption").on("click", addOptionOnClick);
 });
 
-// Pops up a message
+// Pops up a message when you try to exit
 window.onbeforeunload = function(){return true};
 
+// Pops up an alert with the correct link
 function giveLink(){
     alert(window.location.origin + "/?id=" + GROUPID);
 }
@@ -429,6 +473,7 @@ function removeOptionByName(name){
     // if it exists
     if (li !== undefined){
      
+        // remove from the option handler
         oh.removeOptionById(id);
         
         // Make it disapear
@@ -438,9 +483,6 @@ function removeOptionByName(name){
         setTimeout(function(){
             li.parentNode.removeChild(li);
         }, 500);
-        
-        // Adjust the remaining vote count
-        oh.refreshRemainingVotes();
     }
 }
 
