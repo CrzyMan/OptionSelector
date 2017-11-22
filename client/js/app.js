@@ -156,6 +156,7 @@ socket.on('SelectionRequested', function(){
 // Notified of the server's selection
 socket.on('NewSelection', function(name){
     console.log("NewSelection: " + name + "\n");
+    showSelection(name);
 });
 
 // Given the weights of the options from the server
@@ -359,6 +360,10 @@ function validateOptionName(name){
     return result;
 }
 
+function requestSelection(){
+    socket.emit("RequestSelection", GROUPID);
+}
+
 //////////////////////////////
 // End server I/O top level //
 //////////////////////////////
@@ -370,6 +375,11 @@ function validateOptionName(name){
 ////////
 // UI //
 ////////
+
+function showSelection(selection){
+    document.querySelector("#selection .modal-body center").innerHTML = selection;
+    $("#selection").modal("show");
+}
 
 
 function createGroupFormHelper(e){
@@ -398,6 +408,7 @@ function joinGroupFormHelper(e){
 
 /* global $*/
 $( document ).ready(function() {
+    // for modals
     $("#createGroupBtn").on("click", createGroupFormHelper);
     $("#createGroupForm").on("submit", createGroupFormHelper);
     
@@ -416,6 +427,8 @@ $( document ).ready(function() {
     $("#btn_shareGroup").on("click", giveLink);
     
     $("#btn_addOption").on("click", addOptionOnClick);
+    
+    document.getElementById("btn_requestSelection").onclick = requestSelection;
 });
 
 // Pops up a message when you try to exit

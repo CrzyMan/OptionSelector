@@ -394,9 +394,11 @@ function getSelectionFromGroup(groupId){
     let val = ~~(Math.random()*rollSum[rollSum.length - 1]);
     let i = 0;
     
+    console.log(val, rollSum);
+    
     // See which weight index falls under
     // Val fall into the first weight it is less than
-    while (val > rollSum[i]) i++;
+    while (val >= rollSum[i]) i++;
     
     resp = validOptions[i].name;
     
