@@ -118,15 +118,18 @@ io.on('connection', function (socket) {
     }
   });
   
-  // Client voted on an option
+  /* Client voted on an option */
   socket.on("OptionVote", function(name, vote){
     
   });
+  /* */
   
   // Client requested a selection from the server
   socket.on("RequestSelection", function(){
     
   });
+  
+  // 
   
   // When the client disconnects, remove from group
   socket.on('disconnect', function () {
