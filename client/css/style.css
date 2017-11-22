@@ -66,6 +66,14 @@ center .modal {
     to {top:0; opacity:1}
 }
 
+#selection .modal-header center {
+    font-size: 3em;
+    font-weight: bold;
+}
+
+#selection .modal-body center {
+    font-size: 3em;
+}
 /* ********* */
 /* End Modal */
 /* ********* */
@@ -134,7 +142,7 @@ center .modal {
 
 .title-id {
     font-size: 2em;
-    font-family: serif;
+    font-family: "courier new";
     color: #888;
 }
 
