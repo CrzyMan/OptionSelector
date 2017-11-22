@@ -125,7 +125,6 @@ io.on('connection', function (socket) {
       
       // if is member of group
       if (isGroupMember(groupId, socket)){
-        console.log(groups[groupId].options);
         // if option exists
         if (doesOptionExistForGroup(groupId, name)){
           
@@ -135,6 +134,7 @@ io.on('connection', function (socket) {
             // Add vote to option
             voteOnOption(groupId, name, vote);
             
+            console.log(groups[groupId].options);
           }
           
         } else {
@@ -151,16 +151,12 @@ io.on('connection', function (socket) {
   
   // Client requested a selection from the server
   socket.on("RequestSelection", function(groupId){
-    console.log("selection requested");
     // if group exists
     if (groupExists(groupId)){
-      console.log("> valid group");
       // if is member of group
       if (isGroupMember(groupId, socket)){
-        console.log("> > is group member");
         // Get a selection from the group
         const optionName = getSelectionFromGroup(groupId);
-        console.log("> > > optionName: ", optionName);
         
         // If a selection was able to be made
         if (optionName){
@@ -365,7 +361,7 @@ function getGroupOptions(groupId){
  *    vote    : Number  -  The vote, either 1 or -1
  */
 function voteOnOption(groupId, name, vote){
-  groups[groupId].options[name] += vote;
+  groups[groupId].options[name].weight += vote;
 }
 
 /** Returns an option for a group based on weighting, all validation has already been done
@@ -394,13 +390,9 @@ function getSelectionFromGroup(groupId){
                       return arr;
                     }, [])
     
-    console.log("> > > > rollSum  ", rollSum);
-    
     // Pick an index
-    let val = ~~(Math.random()*rollSum[rollSum.lenth - 1]);
+    let val = ~~(Math.random()*rollSum[rollSum.length - 1]);
     let i = 0;
-    
-    console.log("> > > > val ", val);
     
     // See which weight index falls under
     // Val fall into the first weight it is less than

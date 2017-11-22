@@ -98,7 +98,7 @@ class OptionsHandler{
                 
                 this.votes[id] += val;
                 this.remainingVotes += voteGain;
-                socket.emit("OptionVote", GROUPID, id, voteGain);
+                socket.emit("OptionVote", GROUPID, clientIdToServerId(id), val);
                 
                 // refresh the remaining votes
                 this.refreshRemainingVotes();
