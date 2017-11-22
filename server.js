@@ -119,14 +119,63 @@ io.on('connection', function (socket) {
   });
   
   /* Client voted on an option */
-  socket.on("OptionVote", function(name, vote){
-    
+  socket.on("OptionVote", function(groupId, name, vote){
+    // if group exists
+    if (groupExists(groupId)){
+      
+      // if is member of group
+      if (isGroupMember(groupId, socket)){
+        console.log(groups[groupId].options);
+        // if option exists
+        if (doesOptionExistForGroup(groupId, name)){
+          
+          // Vote has to be up or down
+          if (Math.abs(vote) == 1){
+            
+            // Add vote to option
+            voteOnOption(groupId, name, vote);
+            
+          }
+          
+        } else {
+          socket.emit("Status", "Failed to vote", "Option does not exist.");
+        }
+      } else {
+        socket.emit("Status", "Failed to vote", "You are not a member of this group.");
+      }
+    } else {
+      socket.emit("Status", "Failed to vote", "Group does not exist");
+    }
   });
   /* */
   
   // Client requested a selection from the server
-  socket.on("RequestSelection", function(){
-    
+  socket.on("RequestSelection", function(groupId){
+    console.log("selection requested");
+    // if group exists
+    if (groupExists(groupId)){
+      console.log("> valid group");
+      // if is member of group
+      if (isGroupMember(groupId, socket)){
+        console.log("> > is group member");
+        // Get a selection from the group
+        const optionName = getSelectionFromGroup(groupId);
+        console.log("> > > optionName: ", optionName);
+        
+        // If a selection was able to be made
+        if (optionName){
+          socket.emit("NewSelection", optionName);
+        } else {
+          // A selection could not be made
+          socket.emit("Status", "Failed to request selection", "There does not exist an option which is liked enough");
+        }
+        
+      } else {
+        socket.emit("Status", "Failed to request selection", "You are not a member of this group.");
+      }
+    } else {
+      socket.emit("Status", "Failed to request selection", "Group does not exist");
+    }
   });
   
   // 
@@ -254,6 +303,11 @@ function isGroupMember(groupId, socket){
   return socket.rooms.hasOwnProperty(groupId);
 }
 
+/** Makes the Socket join the group
+ * PARAMS:
+ *    groupId : String - The id of the group we want to know if the socket is in
+ *    socket : Socket - The socket we are checking
+ */
 function socketJoinGroup(groupId, socket){
   
   // if the group exists and the socket isn't in another group
@@ -304,6 +358,61 @@ function getGroupOptions(groupId){
   return result;
 }
 
+/** Either adds or removes a vote for an option, all validation has already been done
+ * PARAMS:
+ *    groupId : String  - The ID of the group we are working with
+ *    name    : String  - The name of the option being voted on
+ *    vote    : Number  -  The vote, either 1 or -1
+ */
+function voteOnOption(groupId, name, vote){
+  groups[groupId].options[name] += vote;
+}
+
+/** Returns an option for a group based on weighting, all validation has already been done
+ * PARAMS:
+ *    groupId : String  - The ID of the group we are making a selection for
+ * RETURNS:
+ *    String  - The name of the option. Undefined if no options
+ */
+function getSelectionFromGroup(groupId){
+  let resp;
+  const validOptions = Object.keys(groups[groupId].options)      // Get all of the option keys
+                       .map(key => groups[groupId].options[key]) // Make array of options
+                       .filter(option => option.weight >= 0);     // Only use options which have a non-negative weight
+  
+  // If there are valid options
+  if (validOptions.length > 0){
+    
+    // Format into rolling sum of weights, but add default vote
+    // [{w: 1}, {w: 2}, {w: 3}] => [2, 5, 9]
+    const rollSum = validOptions.reduce((arr, a, i) => { 
+                      let val = a.weight + 1;
+                      if (i > 0)
+                        val += arr[i-1];
+                        
+                      arr.push(val);
+                      return arr;
+                    }, [])
+    
+    console.log("> > > > rollSum  ", rollSum);
+    
+    // Pick an index
+    let val = ~~(Math.random()*rollSum[rollSum.lenth - 1]);
+    let i = 0;
+    
+    console.log("> > > > val ", val);
+    
+    // See which weight index falls under
+    // Val fall into the first weight it is less than
+    while (val > rollSum[i]) i++;
+    
+    resp = validOptions[i].name;
+    
+  } 
+  // else no option was liked enough
+  
+  return resp;
+}
 ////////////////
 // END GROUPS //
 ////////////////

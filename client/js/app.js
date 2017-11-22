@@ -98,6 +98,7 @@ class OptionsHandler{
                 
                 this.votes[id] += val;
                 this.remainingVotes += voteGain;
+                socket.emit("OptionVote", GROUPID, id, voteGain);
                 
                 // refresh the remaining votes
                 this.refreshRemainingVotes();
@@ -349,7 +350,9 @@ function validateOptionName(name){
     // Validate name
     if (name !== undefined){
         if (name === name.trim()){
-            result = true;
+            if (name.length > 0){
+                result = true;
+            }
         } // extra spaces
     } // undefined
     
@@ -459,6 +462,23 @@ function addNewOption(name){
   */
  function optionIdFromName(name){
      return "option_" + name.toLowerCase();
+ }
+ 
+ /** Turns a client side id into a server side id
+  * PARAMS:
+  *     id : String - The id of the option we are working with
+  * RETURNS:
+  *     String - The server side id of the option we are working with
+  */
+ function clientIdToServerId(id){
+     let resp = "";
+     
+     // if it has "option_" at the front
+     if (id.length > 7){
+         // grab what is after that
+         resp = id.substring(7);
+     }
+     return resp;
  }
  
  /** Searches for an option by its name and then removes it
